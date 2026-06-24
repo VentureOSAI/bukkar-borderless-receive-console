@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Borderless Receive Console — Bukkar</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Barlow:wght@400;600;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bk:#000;--bk3:#0e0e0e;--bk4:#171717;
+  --rd:#c02000;--rd2:#e03010;
+  --gd:#d9b31f;--gd2:#ffd92f;
+  --gn:#408020;--gn2:#40a040;
+  --wh:#e8e8e4;--wh2:#9c9c98;--wh3:#525250;
+  --mono:'DM Mono',monospace;--sans:'Barlow',sans-serif;
+}
+html{background:var(--bk);color:var(--wh);font-family:var(--sans);min-height:100vh}
+body{background:var(--bk);background-image:radial-gradient(ellipse 70% 50% at 0% 50%,rgba(64,128,32,.07) 0%,transparent 55%),radial-gradient(ellipse 60% 40% at 100% 0%,rgba(192,32,0,.07) 0%,transparent 55%)}
+
+/* HEADER */
+.hdr{border-bottom:1px solid rgba(64,128,32,.25);padding:0 24px;background:rgba(0,0,0,.9);position:sticky;top:0;z-index:100}
+.hi{max-width:960px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px;gap:16px}
+.lw{display:flex;align-items:center;gap:12px;text-decoration:none}
+.lw img{height:34px;width:auto}
+.tn{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--wh2);border-left:1px solid var(--wh3);padding-left:12px}
+.hcta{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gd);text-decoration:none;border:1px solid rgba(217,179,31,.35);padding:6px 14px;border-radius:2px;transition:all .2s;white-space:nowrap}
+.hcta:hover{background:rgba(217,179,31,.1)}
+
+/* PAGE */
+.pg{max-width:960px;margin:0 auto;padding:48px 24px 80px}
+.eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gn2);display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.eyebrow::before{content:'';width:18px;height:1px;background:var(--gn2)}
+h1{font-family:var(--sans);font-weight:900;font-size:clamp(36px,7vw,64px);line-height:.95;letter-spacing:-.03em;color:var(--wh);margin-bottom:14px}
+h1 .g{color:var(--gn2)} h1 .r{color:var(--rd2)}
+.hero-sub{font-family:var(--mono);font-size:12px;color:var(--wh2);line-height:1.7;max-width:600px;margin-bottom:36px}
+
+/* REALITY STRIP */
+.reality{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-bottom:36px;background:rgba(64,128,32,.06);border:1px solid rgba(64,128,32,.2);border-radius:2px;overflow:hidden}
+.rc{padding:16px 18px;border-right:1px solid rgba(64,128,32,.18)}
+.rc:last-child{border-right:none}
+.rn{font-family:var(--sans);font-weight:900;font-size:26px;color:var(--gd);letter-spacing:-.02em;display:block;line-height:1}
+.rl{font-family:var(--mono);font-size:9px;letter-spacing:.09em;text-transform:uppercase;color:var(--wh3);display:block;margin-top:5px;line-height:1.4}
+
+/* APP SHELL */
+.app{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}
+@media(max-width:800px){.app{grid-template-columns:1fr}}
+
+/* CONFIGURE PANEL */
+.panel{background:var(--bk3);border:1px solid rgba(255,255,255,.07);border-radius:2px;padding:26px;position:relative}
+.panel::before{content:attr(data-label);position:absolute;top:-1px;left:18px;font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--gn2);background:var(--bk3);padding:0 8px;text-transform:uppercase}
+.fl{font-family:var(--mono);font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--wh2);display:block;margin-bottom:8px;margin-top:16px}
+.fl:first-of-type{margin-top:4px}
+input[type=text],select{width:100%;background:var(--bk4);border:1px solid rgba(255,255,255,.09);border-radius:2px;color:var(--wh);font-family:var(--mono);font-size:13px;padding:11px 13px;outline:none;transition:border-color .2s}
+input[type=text]:focus,select:focus{border-color:var(--gn2)}
+input::placeholder{color:var(--wh3)}
+select{-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23525250' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+.currency-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:4px}
+.cur-btn{background:var(--bk4);border:1px solid rgba(255,255,255,.09);border-radius:2px;padding:9px 6px;text-align:center;cursor:pointer;transition:all .15s;font-family:var(--mono);font-size:11px;color:var(--wh2);letter-spacing:.04em}
+.cur-btn:hover{border-color:rgba(64,128,32,.5);color:var(--gn2)}
+.cur-btn.on{background:rgba(64,128,32,.12);border-color:var(--gn2);color:var(--gn2);font-weight:500}
+.gen-btn{width:100%;background:var(--gn);color:#fff;font-family:var(--sans);font-weight:700;font-size:15px;letter-spacing:.05em;text-transform:uppercase;padding:15px 28px;border:none;border-radius:2px;cursor:pointer;transition:all .2s;margin-top:20px}
+.gen-btn:hover{background:var(--gn2);transform:translateY(-1px)}
+.gen-btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+
+/* RECEIVE PANEL — stub and live states */
+.stub{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:48px 20px;color:var(--wh3)}
+.stub-ico{font-size:32px;margin-bottom:12px;opacity:.35}
+.stub-txt{font-family:var(--mono);font-size:11px;line-height:1.65}
+.live-console{display:none;animation:up .4s ease}
+.live-console.show{display:block}
+@keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* LIVE STATE */
+.live-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(64,160,64,.1);border:1px solid rgba(64,160,64,.3);color:#60d060;font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:5px 12px;border-radius:2px;margin-bottom:16px}
+.ldot{width:6px;height:6px;border-radius:50%;background:#60d060;animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.lc-name{font-family:var(--sans);font-weight:900;font-size:20px;color:var(--wh);letter-spacing:-.02em;margin-bottom:2px}
+.lc-svc{font-family:var(--mono);font-size:11px;color:var(--wh2);margin-bottom:18px}
+.qr-wrap{background:#fff;padding:14px;border-radius:3px;display:inline-block;margin-bottom:16px}
+.link-box{background:var(--bk4);border:1px solid rgba(255,255,255,.1);border-radius:2px;padding:10px 13px;display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.link-txt{font-family:var(--mono);font-size:10px;color:var(--wh2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.copy-btn{background:rgba(64,128,32,.12);border:1px solid rgba(64,128,32,.3);color:var(--gn2);font-family:var(--mono);font-size:9px;letter-spacing:.06em;text-transform:uppercase;padding:6px 10px;border-radius:2px;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .15s}
+.copy-btn:hover{background:rgba(64,128,32,.22)}
+.currencies-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.cur-tag{font-family:var(--mono);font-size:9px;letter-spacing:.05em;color:var(--wh2);background:var(--bk4);border:1px solid rgba(255,255,255,.08);padding:4px 10px;border-radius:2px}
+.actions{display:flex;gap:10px;margin-bottom:16px}
+.act-btn{flex:1;font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:.03em;text-transform:uppercase;padding:11px 14px;border-radius:2px;cursor:pointer;transition:all .2s;text-align:center;border:none;display:flex;align-items:center;justify-content:center;gap:7px}
+.act-btn.primary{background:var(--gd);color:var(--bk)}
+.act-btn.primary:hover{background:var(--gd2)}
+.act-btn.secondary{background:transparent;border:1px solid rgba(255,255,255,.15);color:var(--wh2)}
+.act-btn.secondary:hover{border-color:var(--wh2);color:var(--wh)}
+.prereq{background:rgba(217,179,31,.06);border:1px solid rgba(217,179,31,.18);border-radius:2px;padding:12px 14px;font-family:var(--mono);font-size:10px;color:var(--wh2);line-height:1.65}
+.prereq strong{color:var(--gd);font-weight:500}
+.reset-lnk{display:block;margin:16px auto 0;background:transparent;border:none;color:var(--wh3);font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;text-decoration:underline}
+.reset-lnk:hover{color:var(--gd)}
+
+/* CTA BAR */
+.cta-bar{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:24px 28px;border:1px solid rgba(64,128,32,.2);background:rgba(64,128,32,.04);border-radius:2px;margin-top:28px;flex-wrap:wrap}
+.cta-t{flex:1;min-width:200px}
+.cta-h{font-family:var(--sans);font-weight:700;font-size:16px;color:var(--wh);margin-bottom:5px;line-height:1.2}
+.cta-h span{color:var(--gn2)}
+.cta-d{font-family:var(--mono);font-size:11px;color:var(--wh2);line-height:1.55}
+.cta-btn{display:inline-block;background:var(--rd);color:#fff;font-family:var(--sans);font-weight:700;font-size:13px;letter-spacing:.03em;text-transform:uppercase;text-decoration:none;padding:12px 24px;border-radius:2px;white-space:nowrap;flex-shrink:0;transition:all .2s}
+.cta-btn:hover{background:var(--rd2)}
+
+/* FOOTER */
+footer{border-top:1px solid rgba(255,255,255,.05);padding:20px 24px;margin-top:8px}
+.fi{max-width:960px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.fli{height:26px;width:auto;opacity:.6}
+.fn{font-family:var(--mono);font-size:9px;color:var(--wh3);letter-spacing:.07em;line-height:1.6}
+
+@media(max-width:600px){
+  .reality{grid-template-columns:1fr}
+  .rc{border-right:none;border-bottom:1px solid rgba(64,128,32,.18)}
+  .rc:last-child{border-bottom:none}
+  h1{font-size:38px}
+  .panel{padding:20px}
+  .cta-bar{flex-direction:column}
+  .actions{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hi">
+    <a href="https://bukkar.com" class="lw">
+      <img src="bukkar-logo.png" alt="Bukkar">
+      <span class="tn">Borderless Receive Console</span>
+    </a>
+    <a href="https://bukkar.com/join-the-waiting-list/" class="hcta">Join Free →</a>
+  </div>
+</header>
+
+<div class="pg">
+  <div class="eyebrow">Free Tool · Bukkar Ltd · Borderless Access</div>
+  <h1>Get Paid<br>From <span class="g">Anywhere</span>.<br>Share <span class="r">Nothing</span>.</h1>
+  <p class="hero-sub">Enter your name and what you do. Get a live Bukkar receive link, a QR code your client scans to pay, and a professional "How to Pay Me" card — ready to send to any client, in any country, right now.</p>
+
+  <div class="reality">
+    <div class="rc"><span class="rn">6.4%</span><span class="rl">Average fee lost on international transfers to African corridors</span></div>
+    <div class="rc"><span class="rn">2–5d</span><span class="rl">Typical settlement delay on SWIFT transfers before funds clear</span></div>
+    <div class="rc"><span class="rn">1 in 3</span><span class="rl">International transfers to African accounts flagged or rejected</span></div>
+  </div>
+
+  <div class="app">
+
+    <!-- LEFT: CONFIGURE -->
+    <div class="panel" data-label="// CONFIGURE YOUR RECEIVE SETUP">
+      <span class="fl">Your name or business name</span>
+      <input type="text" id="rname" placeholder="e.g. Chidi Okafor Design">
+
+      <span class="fl">What you do / service type</span>
+      <input type="text" id="rservice" placeholder="e.g. UI/UX Design & Branding">
+
+      <span class="fl">Your location</span>
+      <select id="rlocation">
+        <option value="">Select country...</option>
+        <option>Nigeria</option>
+        <option>Ghana</option>
+        <option>Kenya</option>
+        <option>Uganda</option>
+        <option>Ethiopia</option>
+        <option>South Africa</option>
+        <option>Tanzania</option>
+        <option>Rwanda</option>
+        <option>Zimbabwe</option>
+        <option>Senegal</option>
+        <option>Other African market</option>
+        <option>Outside Africa</option>
+      </select>
+
+      <span class="fl">Accept payments in (select all that apply)</span>
+      <div class="currency-grid" id="cur-grid">
+        <div class="cur-btn on" data-c="GBP £">GBP £</div>
+        <div class="cur-btn on" data-c="USD $">USD $</div>
+        <div class="cur-btn on" data-c="EUR €">EUR €</div>
+        <div class="cur-btn" data-c="NGN ₦">NGN ₦</div>
+        <div class="cur-btn" data-c="GHS GH₵">GHS GH₵</div>
+        <div class="cur-btn" data-c="KES KSh">KES KSh</div>
+      </div>
+
+      <span class="fl">Invoice / project reference (optional)</span>
+      <input type="text" id="rref" placeholder="e.g. INV-2026-047 or Website Project">
+
+      <button class="gen-btn" id="gen-btn" onclick="generateConsole()">
+        Set Up My Borderless Receive Link →
+      </button>
+    </div>
+
+    <!-- RIGHT: LIVE CONSOLE -->
+    <div class="panel" data-label="// YOUR LIVE RECEIVE CONSOLE" style="min-height:420px">
+      <div class="stub" id="stub">
+        <div class="stub-ico">⬡</div>
+        <div class="stub-txt">Your live receive link,<br>QR code, and payment card<br>will appear here instantly.</div>
+      </div>
+
+      <div class="live-console" id="live-console">
+        <div class="live-badge"><span class="ldot"></span>Receive link is live</div>
+        <div class="lc-name" id="lc-name">—</div>
+        <div class="lc-svc" id="lc-svc">—</div>
+
+        <div class="qr-wrap"><div id="qr-canvas"></div></div>
+
+        <div class="link-box">
+          <span class="link-txt" id="lc-link">https://pay.bukkar.com/...</span>
+          <button class="copy-btn" onclick="copyLink()">Copy link</button>
+        </div>
+
+        <div class="currencies-row" id="lc-currencies"></div>
+
+        <div class="actions">
+          <button class="act-btn primary" onclick="downloadCard()">⬇ Download Payment Card</button>
+          <button class="act-btn secondary" onclick="copyCard()">📋 Copy Card Text</button>
+        </div>
+
+        <div class="prereq">
+          <strong>Pre-launch note:</strong> This receive link is generated using your Bukkar waitlist profile. Once your Bukkar account is activated, this exact link and QR code become your live, funded receive endpoint — no reconfiguration needed.
+        </div>
+
+        <button class="reset-lnk" onclick="resetConsole()">← Configure a different receive setup</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="cta-bar">
+    <div class="cta-t">
+      <div class="cta-h">This is your receive link. <span>Bukkar gives you the whole account.</span></div>
+      <div class="cta-d">Multi-currency wallet. Instant settlement. Send, receive, pay, and borrow — all from one Bukkar account. No bank details ever required. Free to join.</div>
+    </div>
+    <a href="https://bukkar.com/join-the-waiting-list/" class="cta-btn">Activate My Bukkar Account →</a>
+  </div>
+</div>
+
+<footer>
+  <div class="fi">
+    <img src="bukkar-logo.png" alt="Bukkar" class="fli">
+    <span class="fn">Powered by VentureOS AI · Built by Sceamdo · ventureosai.com<br>Mohammad Bukkar | Economic Systems Architect and Founder — Sceamdo · VentureOS AI · Bukkar Ltd</span>
+  </div>
+</footer>
+
+<script>
+/* ===== CURRENCY TOGGLE ===== */
+document.querySelectorAll('.cur-btn').forEach(b => {
+  b.addEventListener('click', () => b.classList.toggle('on'));
+});
+
+function getSelectedCurrencies() {
+  return [...document.querySelectorAll('.cur-btn.on')].map(b => b.dataset.c);
+}
+
+/* ===== GENERATE CONSOLE ===== */
+let currentConsole = null;
+
+function generateConsole() {
+  const name    = document.getElementById('rname').value.trim();
+  const service = document.getElementById('rservice').value.trim();
+  const location = document.getElementById('rlocation').value;
+  const ref     = document.getElementById('rref').value.trim();
+  const currencies = getSelectedCurrencies();
+
+  if (!name || !service) {
+    alert('Please enter your name and service type to generate your receive link.');
+    return;
+  }
+  if (!currencies.length) {
+    alert('Please select at least one currency to accept.');
+    return;
+  }
+
+  const slug = name.toLowerCase()
+    .replace(/[^a-z0-9\s]/g, '')
+    .replace(/\s+/g, '-')
+    .substring(0, 28);
+  const uid  = Math.random().toString(36).substring(2, 7).toUpperCase();
+  const receiveLink = `https://pay.bukkar.com/r/${slug}-${uid}`;
+
+  currentConsole = { name, service, location, ref, currencies, receiveLink, uid };
+
+  /* populate live panel */
+  document.getElementById('lc-name').textContent = name;
+  document.getElementById('lc-svc').textContent  = service + (location ? ` · ${location}` : '');
+  document.getElementById('lc-link').textContent  = receiveLink;
+
+  document.getElementById('lc-currencies').innerHTML =
+    currencies.map(c => `<span class="cur-tag">${c}</span>`).join('');
+
+  /* QR */
+  document.getElementById('qr-canvas').innerHTML = '';
+  new QRCode(document.getElementById('qr-canvas'), {
+    text: receiveLink,
+    width: 150,
+    height: 150,
+    colorDark: '#000000',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.M
+  });
+
+  document.getElementById('stub').style.display = 'none';
+  document.getElementById('live-console').classList.add('show');
+}
+
+/* ===== COPY LINK ===== */
+function copyLink() {
+  if (!currentConsole) return;
+  navigator.clipboard.writeText(currentConsole.receiveLink).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = orig, 1600);
+  });
+}
+
+/* ===== DOWNLOADABLE PAYMENT INSTRUCTION CARD ===== */
+function buildCardHTML(c) {
+  const date = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+  const currencyList = c.currencies.join(' · ');
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>How to Pay ${c.name} — Bukkar</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;900&family=DM+Mono:wght@400;500&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Barlow',sans-serif;background:#f5f5f3;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+  .card{background:#000;color:#e8e8e4;width:100%;max-width:540px;border-radius:4px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+  .card-top{background:#c02000;padding:28px 32px 24px}
+  .card-eyebrow{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:10px}
+  .card-name{font-weight:900;font-size:26px;letter-spacing:-.02em;color:#fff;line-height:1}
+  .card-service{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,.75);margin-top:6px}
+  .card-body{padding:28px 32px}
+  .section-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#525250;margin-bottom:10px;display:block}
+  .link-display{background:#111;border:1px solid rgba(255,255,255,.1);border-radius:2px;padding:13px 16px;font-family:'DM Mono',monospace;font-size:12px;color:#d9b31f;word-break:break-all;margin-bottom:22px}
+  .step{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
+  .step-n{width:22px;height:22px;border-radius:50%;background:#c02000;color:#fff;font-family:'DM Mono',monospace;font-size:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+  .step-t{font-family:'DM Mono',monospace;font-size:11px;color:#9c9c98;line-height:1.6}
+  .step-t strong{color:#e8e8e4;font-weight:500}
+  .currencies{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:22px}
+  .ctag{font-family:'DM Mono',monospace;font-size:10px;background:rgba(64,128,32,.15);border:1px solid rgba(64,160,64,.25);color:#40a040;padding:4px 10px;border-radius:2px}
+  .privacy-note{background:rgba(64,128,32,.08);border-left:3px solid #408020;padding:12px 16px;border-radius:0 2px 2px 0;font-family:'DM Mono',monospace;font-size:10px;color:#9c9c98;line-height:1.65}
+  .privacy-note strong{color:#40a040;font-weight:500}
+  .card-foot{border-top:1px solid rgba(255,255,255,.07);padding:16px 32px;display:flex;align-items:center;justify-content:space-between}
+  .foot-brand{font-family:'DM Mono',monospace;font-size:9px;color:#525250;letter-spacing:.08em}
+  .foot-date{font-family:'DM Mono',monospace;font-size:9px;color:#525250}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="card-top">
+    <div class="card-eyebrow">Bukkar · Identifier-Free Payment Instructions</div>
+    <div class="card-name">${c.name}</div>
+    <div class="card-service">${c.service}${c.location ? ' · ' + c.location : ''}</div>
+  </div>
+  <div class="card-body">
+    <span class="section-label">Your payment link</span>
+    <div class="link-display">${c.receiveLink}</div>
+
+    <span class="section-label">Currencies accepted</span>
+    <div class="currencies">
+      ${c.currencies.map(cur => `<span class="ctag">${cur}</span>`).join('')}
+    </div>
+
+    <span class="section-label">How to pay — 3 steps</span>
+    <div class="step"><div class="step-n">1</div><div class="step-t">Click the link above or scan the QR code — it opens the Bukkar payment page directly in your browser.</div></div>
+    <div class="step"><div class="step-n">2</div><div class="step-t">Enter the amount and select your preferred currency. <strong>No card number, bank account, or personal details required.</strong></div></div>
+    <div class="step"><div class="step-n">3</div><div class="step-t">Confirm payment. Funds arrive instantly in ${c.name.split(' ')[0]}'s Bukkar account — no delays, no intermediaries.</div></div>
+
+    ${c.ref ? `<div style="margin-top:16px;font-family:'DM Mono',monospace;font-size:10px;color:#9c9c98">Reference: <strong style="color:#e8e8e4">${c.ref}</strong></div>` : ''}
+
+    <div class="privacy-note" style="margin-top:20px">
+      <strong>Your privacy is protected.</strong> Bukkar's identifier-free payment system means your card number, bank account details, and personal data are never requested or stored during this transaction.
+    </div>
+  </div>
+  <div class="card-foot">
+    <span class="foot-brand">Powered by Bukkar · bukkar.com</span>
+    <span class="foot-date">Generated ${date}</span>
+  </div>
+</div>
+</body>
+</html>`;
+}
+
+function downloadCard() {
+  if (!currentConsole) return;
+  const html = buildCardHTML(currentConsole);
+  const blob = new Blob([html], { type: 'text/html' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `Bukkar-Payment-Card-${currentConsole.uid}.html`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function copyCard() {
+  if (!currentConsole) return;
+  const c = currentConsole;
+  const text =
+`HOW TO PAY ${c.name.toUpperCase()}
+${c.service}${c.location ? ' · ' + c.location : ''}
+
+Payment link: ${c.receiveLink}
+
+Currencies accepted: ${c.currencies.join(', ')}
+
+HOW TO PAY:
+1. Click the link above — it opens the Bukkar payment page in your browser.
+2. Enter the amount in your preferred currency. No card number, bank account, or personal details required.
+3. Confirm. Funds arrive instantly — no delays, no intermediaries.
+${c.ref ? `\nReference: ${c.ref}` : ''}
+
+Your privacy is protected — Bukkar's identifier-free system means your financial details are never requested or stored.
+
+Powered by Bukkar · bukkar.com`;
+
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied to clipboard';
+    setTimeout(() => btn.textContent = orig, 1800);
+  });
+}
+
+function resetConsole() {
+  document.getElementById('rname').value    = '';
+  document.getElementById('rservice').value = '';
+  document.getElementById('rlocation').value = '';
+  document.getElementById('rref').value     = '';
+  document.querySelectorAll('.cur-btn').forEach(b => {
+    b.classList.toggle('on', ['GBP £','USD $','EUR €'].includes(b.dataset.c));
+  });
+  document.getElementById('stub').style.display = 'flex';
+  document.getElementById('live-console').classList.remove('show');
+  currentConsole = null;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
